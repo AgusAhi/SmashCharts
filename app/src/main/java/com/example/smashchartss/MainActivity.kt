@@ -1,49 +1,79 @@
-@file:OptIn(SupabaseExperimental::class)
-
 package com.example.smashchartss
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import io.github.jan.supabase.annotations.SupabaseExperimental
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 class MainActivity : ComponentActivity() {
+    private val viewModel by lazy {
+        CharacterViewModel(CharacterRepository())
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            CharacterList(onCharacterClick = { characterId ->})
+            AppNavigator(viewModel = viewModel)
         }
     }
 }
 
+@Composable
+fun AppNavigator(viewModel: CharacterViewModel) {
+    val navController = rememberNavController()
+    val uiState by viewModel.characters.collectAsState()
 
-/*
-class MainActivity : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            CharacterList(onCharacterClick = {})
-        }
-    }
-}
-
-fun SupaBase () {
-    @OptIn(SupabaseExperimental::class, SupabaseInternal::class)
-    val supabaseClient = createSupabaseClient(
-        supabaseUrl = "https://jizdtwofjbzobjipqnha.supabase.co",
-        supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppemR0d29mamJ6b2JqaXBxbmhhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzEzMzU5NjksImV4cCI6MjA0NjkxMTk2OX0.yyhbbUXCq0hQCvGLaxgIe0YOjgEuiGiL_jNMAeVZyoQ"
+    NavHost(
+        navController = navController,
+        startDestination = "characterList"
     ) {
-        install(Realtime)
-        install(Postgrest)
-        httpConfig {
-            install(WebSockets)
+        composable("characterList") {
+            when (uiState) {
+                is CharacterListUiState.Loading -> LoadingScreen()
+                is CharacterListUiState.Success -> {
+                    val characterList = (uiState as CharacterListUiState.Success).characters
+                    CharacterList(
+                        characters = characterList,
+                        navController = navController
+                    )
+                }
+                is CharacterListUiState.Error -> {
+                    val message = (uiState as CharacterListUiState.Error).message
+                    ErrorScreen(message = message)
+                }
+            }
+        }
+
+        composable(
+            route = "menuScreen/{characterId}",
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val characterId = backStackEntry.arguments?.getString("characterId")
+            MenuScreen(characterId = characterId, navHostController = navController)
+        }
+
+        composable(
+            route = "matchupChart/{characterId}",
+            arguments = listOf(navArgument("characterId") { type = NavType.IntType; defaultValue = -1 })
+        ) { backStackEntry ->
+            val characterId = backStackEntry.arguments?.getInt("characterId") ?: -1
+            if (uiState is CharacterListUiState.Success) {
+                val characters = (uiState as CharacterListUiState.Success).characters
+                MatchupChart(characters = characters)
+            } else {
+                LoadingScreen()
+            }
         }
     }
 }
-
- */
 
 
 

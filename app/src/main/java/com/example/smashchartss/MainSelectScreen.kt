@@ -18,23 +18,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.Font
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.smashchartss.ui.theme.FontTittle
 
-// Definición de la fuente personalizada
-val FontTittle = FontFamily(
-    Font(R.font.fontsmash, FontWeight.Normal),
-)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CharacterList(
-    onCharacterClick: (String) -> Unit
-) {
+fun CharacterList(navController: NavHostController, characters: List<Character>) {
     var characterList by remember { mutableStateOf<List<Character>>(emptyList()) }
     var searchQuery by remember { mutableStateOf("") }
 
@@ -89,10 +83,9 @@ fun CharacterList(
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             items(filteredList) { character ->
-                CharacterCard(
-                    character = character,
-                    onClick = { onCharacterClick(character.id) }
-                )
+                CharacterCard(character) {
+                    navController.navigate("menuScreen/${character.number}")
+                }
             }
         }
     }
@@ -116,3 +109,23 @@ fun CharacterCard(character: Character, onClick: () -> Unit) {
         )
     }
 }
+
+@Composable
+fun LoadingScreen() {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text("Loading...", style = TextStyle(fontSize = 18.sp, color = Color.Gray))
+    }
+}
+
+@Composable
+fun ErrorScreen(message: String) {
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(
+            text = "Error: $message",
+            style = TextStyle(fontSize = 18.sp, color = Color.Red),
+            modifier = Modifier.padding(16.dp)
+        )
+    }
+}
+
+

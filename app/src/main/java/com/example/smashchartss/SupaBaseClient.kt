@@ -10,7 +10,9 @@ import io.github.jan.supabase.realtime.Realtime
 import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import android.util.Log
 
+// Cliente Supabase
 object SupaBaseClient {
     @OptIn(SupabaseExperimental::class, SupabaseInternal::class)
     val client = createSupabaseClient(
@@ -27,14 +29,47 @@ object SupaBaseClient {
 
 // Función para obtener la lista de personajes desde Supabase
 suspend fun fetchCharacters(): List<Character> {
-    return SupaBaseClient.client
-        .postgrest
-        .from("characters")
-        .select()
-        .decodeList()
+    return try {
+        SupaBaseClient.client
+            .postgrest
+            .from("characters")
+            .select()
+            .decodeList()
+    } catch (e: Exception) {
+        Log.e("Supabase", "Error fetching characters: ${e.message}", e)
+        emptyList() // En caso de error, devuelve una lista vacía
+    }
 }
 
-// Clases de estado para la UI
+// Repositorio
+class CharacterRepository {
+    private suspend fun fetchCharacterList(): Result<List<Character>> {
+        return try {
+            val characters = fetchCharacters()
+            Result.success(characters)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    fun getCharactersFlow(): Flow<Result<List<Character>>> = flow {
+        emit(fetchCharacterList())
+    }
+
+    suspend fun getCharacterById(id: Int): Result<Character> {
+        return try {
+            val characters = fetchCharacters()
+            val character = characters.find { it.number == id }
+                ?: throw NoSuchElementException("Character with id $id not found")
+            Result.success(character)
+        } catch (e: Exception) {
+            Log.e("Supabase", "Error fetching character by ID: ${e.message}", e)
+            Result.failure(e)
+        }
+    }
+}
+
+// Estados para la UI
 sealed class CharacterListUiState {
     object Loading : CharacterListUiState()
     data class Success(val characters: List<Character>) : CharacterListUiState()
@@ -47,74 +82,34 @@ sealed class CharacterDetailsUiState {
     data class Error(val message: String) : CharacterDetailsUiState()
 }
 
-// Repositorio para manejar la lógica de negocio
-class CharacterRepository {
-    fun getCharactersFlow(): Flow<Result<List<Character>>> = flow {
-        try {
-            val characters = fetchCharacters()
-            emit(Result.success(characters))
-        } catch (e: Exception) {
-            emit(Result.failure(e))
-        }
-    }
-
-    suspend fun getCharacterById(number: Int): Result<Character> {
-        return try {
-            val characters = fetchCharacters()
-            val character = characters.find { it.number == number }
-                ?: throw NoSuchElementException("Character with id $number not found")
-            Result.success(character)
-        } catch (e: Exception) {
-            Result.failure(e)
-        }
-    }
-}
-
-// ViewModel para manejar los estados de la UI
 class CharacterViewModel(
     private val repository: CharacterRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow<CharacterListUiState>(CharacterListUiState.Loading)
-    val uiState: StateFlow<CharacterListUiState> = _uiState.asStateFlow()
-
-    private val _selectedCharacter = MutableStateFlow<CharacterDetailsUiState>(CharacterDetailsUiState.Loading)
-    val selectedCharacter: StateFlow<CharacterDetailsUiState> = _selectedCharacter.asStateFlow()
+    private val _characters = MutableStateFlow<CharacterListUiState>(CharacterListUiState.Loading)
+    val characters: StateFlow<CharacterListUiState> = _characters.asStateFlow()
 
     init {
         loadCharacters()
     }
 
-    fun loadCharacters() {
+    private fun loadCharacters() {
         viewModelScope.launch {
-            _uiState.value = CharacterListUiState.Loading
             repository.getCharactersFlow()
                 .catch { e ->
-                    _uiState.value = CharacterListUiState.Error(e.message ?: "Unknown error")
+                    _characters.value = CharacterListUiState.Error(e.message ?: "Error loading characters")
                 }
                 .collect { result ->
                     result.fold(
-                        onSuccess = { characters ->
-                            _uiState.value = CharacterListUiState.Success(characters)
+                        onSuccess = { characterList ->
+                            _characters.value = CharacterListUiState.Success(characterList)
                         },
-                        onFailure = { error ->
-                            _uiState.value = CharacterListUiState.Error(error.message ?: "Unknown error")
+                        onFailure = {
+                            _characters.value = CharacterListUiState.Error(it.message ?: "Error loading characters")
                         }
                     )
                 }
         }
     }
-
-    fun loadCharacterDetails(id: Int) {
-        viewModelScope.launch {
-            _selectedCharacter.value = CharacterDetailsUiState.Loading
-            repository.getCharacterById(id)
-                .onSuccess { character ->
-                    _selectedCharacter.value = CharacterDetailsUiState.Success(character)
-                }
-                .onFailure { error ->
-                    _selectedCharacter.value = CharacterDetailsUiState.Error(error.message ?: "Unknown error")
-                }
-        }
-    }
 }
+
