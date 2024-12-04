@@ -19,6 +19,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
@@ -28,21 +29,16 @@ import com.example.smashchartss.ui.theme.FontTittle
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CharacterList(navController: NavHostController, characters: List<Character>) {
-    var characterList by remember { mutableStateOf<List<Character>>(emptyList()) }
-    var searchQuery by remember { mutableStateOf("") }
-
-    // Llamada a la función suspendida para obtener los personajes
-    LaunchedEffect(key1 = true) {
-        characterList = fetchCharacters()
-    }
+fun MainSelectScreen(navController: NavHostController) {
+    var searchQuery by remember { mutableStateOf("") } // Query de búsqueda
 
     // Filtrar personajes basados en la búsqueda
-    val filteredList = characterList.filter {
+    val filteredList = characterFetch().filter {
         it.name.contains(searchQuery, ignoreCase = true)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
+
         // Título en la parte superior
         Text(
             text = "CHOOSE YOUR CHARACTER",
@@ -56,7 +52,7 @@ fun CharacterList(navController: NavHostController, characters: List<Character>)
                 .fillMaxWidth()
                 .padding(vertical = 16.dp)
                 .align(Alignment.CenterHorizontally),
-            textAlign = androidx.compose.ui.text.style.TextAlign.Center
+            textAlign = TextAlign.Center
         )
 
         // Campo de búsqueda
@@ -66,7 +62,7 @@ fun CharacterList(navController: NavHostController, characters: List<Character>)
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 8.dp),
-            placeholder = { Text("Buscar personaje...") },
+            placeholder = { Text("Search Characters...") },
             singleLine = true,
             colors = TextFieldDefaults.textFieldColors(
                 containerColor = Color.LightGray.copy(alpha = 0.2f),
@@ -84,11 +80,22 @@ fun CharacterList(navController: NavHostController, characters: List<Character>)
         ) {
             items(filteredList) { character ->
                 CharacterCard(character) {
-                    navController.navigate("menuScreen/${character.number}")
+                    navController.navigate("menuScreen/${character.id}")
                 }
             }
         }
     }
+}
+
+@Composable
+fun characterFetch(): List<Character> {
+    var characterList by remember { mutableStateOf<List<Character>>(emptyList()) } // Lista de personajes
+
+    // Obtener la lista de personajes
+    LaunchedEffect(key1 = true) {
+        characterList = fetchCharacters()
+    }
+    return characterList
 }
 
 @Composable
@@ -110,22 +117,6 @@ fun CharacterCard(character: Character, onClick: () -> Unit) {
     }
 }
 
-@Composable
-fun LoadingScreen() {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text("Loading...", style = TextStyle(fontSize = 18.sp, color = Color.Gray))
-    }
-}
 
-@Composable
-fun ErrorScreen(message: String) {
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        Text(
-            text = "Error: $message",
-            style = TextStyle(fontSize = 18.sp, color = Color.Red),
-            modifier = Modifier.padding(16.dp)
-        )
-    }
-}
 
 
