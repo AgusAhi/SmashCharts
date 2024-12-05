@@ -39,6 +39,7 @@ fun AppNavigator() {
             MainSelectScreen(navController = navController)
         }
 
+        // Menu Screen
 
         composable(
             route = "menuScreen/{characterId}",
@@ -48,27 +49,15 @@ fun AppNavigator() {
             MenuScreen(characterId = characterId, navHostController = navController)
         }
 
-        /*
+        // Matchup Chart
 
         composable(
             route = "matchupChart/{characterId}",
-            arguments = listOf(navArgument("characterId") { type = NavType.IntType; defaultValue = -1 })
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
         ) { backStackEntry ->
-
-         */
-
-
-
-            /*
-            if (uiState is CharacterListUiState.Success) {
-                val characters = (uiState as CharacterListUiState.Success).characters
-                MatchupChart(characters = characters)
-            } else {
-                LoadingScreen()
-            }
-
-             */
-
+            val characterId = backStackEntry.arguments?.getString("characterId")
+            MatchupChart(characterId = characterId, navHostController = navController)
+        }
 
     }
 }
