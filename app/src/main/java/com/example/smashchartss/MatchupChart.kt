@@ -1,181 +1,207 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.example.smashchartss
 
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.smashchartss.ui.theme.FontTittle
 
-
+@RequiresApi(35)
 @Composable
 fun MatchupChart(characterId: String?, navHostController: NavHostController) {
-    val draggedCharacter = remember { mutableStateOf<Character?>(null) }
-    val dragOffset = remember { mutableStateOf(Offset.Zero) }
-    val isDragging = remember { mutableStateOf(false) }
-    val boxes = remember { mutableStateListOf(BoxData()) } // Lista mutable para las cajas
-    val scrollState = rememberScrollState()
+    val isEditMode = remember { mutableStateOf(false) } // Estado para alternar el modo edición
+    val assignedCharacters = remember { mutableStateListOf<Character>() } // Lista de personajes asignados
+    val allCharacters = remember { mutableStateOf<List<Character>>(emptyList()) }
+    val availableCharacters = remember { mutableStateListOf<Character>() }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp),
-            // .verticalScroll(scrollState), PETTAAAAAAAAAAAAAAAAAA
-        verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+    // Cargar los personajes al iniciar la composición
+    CharacterFetchRemovable(allCharacters, availableCharacters)
+
+    Box(
+        modifier = Modifier.fillMaxSize()
     ) {
-        // Mostrar la carta del personaje seleccionado
-        characterFetch().find { it.id == characterId }?.let {
-            CharacterCard(character = it) {
-                // Acción al hacer clic en la carta
-            }
-        }
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.Top,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
 
-        Spacer(modifier = Modifier.height(16.dp))
+            // Título general de la pantalla
+            Text(
+                text = "Matchup Chart",
+                style = TextStyle(
+                    fontFamily = FontTittle,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center
+            )
 
-        // Iterar sobre las cajas dinámicas
-        boxes.forEach { boxData ->
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Caja principal para los personajes asignados
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(200.dp)
                     .background(Color.LightGray)
                     .border(2.dp, Color.Black)
-                    .padding(bottom = 8.dp)
+                    .padding(8.dp)
             ) {
-                if (draggedCharacter.value != null && isDragging.value && boxData.isActive) {
-                    // Mostrar el personaje arrastrado de forma visual
-                    Box(
-                        modifier = Modifier
-                            .offset { IntOffset(dragOffset.value.x.toInt(), dragOffset.value.y.toInt()) }
-                            .size(100.dp)
-                            .background(Color.Gray, shape = CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = draggedCharacter.value?.name ?: "",
-                            style = TextStyle(color = Color.White, fontWeight = FontWeight.Bold)
-                        )
-                    }
-                } else {
-                    // Mostrar el mensaje por defecto
-                    Text(
-                        text = "Drag characters here",
-                        modifier = Modifier.align(Alignment.Center),
-                        style = TextStyle(fontSize = 20.sp, fontWeight = FontWeight.Bold)
-                    )
-                }
+
+                // Lógica específica de la caja principal
+                BoxContent(
+                    isEditMode = isEditMode.value,
+                    assignedCharacters = assignedCharacters,
+                    availableCharacters = availableCharacters
+                )
+
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Otros elementos de la UI (personajes disponibles, botones, etc.)
+            Text(
+                text = "Available Characters",
+                style = TextStyle(
+                    fontFamily = FontTittle,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 24.sp,
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 8.dp),
+                textAlign = TextAlign.Center
+            )
+
+            CharactersBoxClickable(
+                filteredList = availableCharacters,
+                onCharacterClick = { character ->
+                    if (character !in assignedCharacters && isEditMode.value) {
+                        assignedCharacters.add(character) // Agrega directamente
+                        availableCharacters.remove(character) // Remueve directamente
+                    }
+                }
+            )
+
         }
 
-        // Botón para agregar una nueva caja
-        Button(
-            onClick = { boxes.add(BoxData()) },
-            modifier = Modifier.align(Alignment.CenterHorizontally)
+        // Floating Action Button (FAB) fuera del contenido principal
+        FloatingActionButton(
+            onClick = { isEditMode.value = !isEditMode.value },
+            modifier = Modifier
+                .align(Alignment.BottomEnd) // Posicionar en la esquina inferior derecha
+                .padding(16.dp),
+            containerColor = if (isEditMode.value) Color.Green else Color.Gray
         ) {
-            Text(text = "+ Add Box")
+            Text(
+                text = if (isEditMode.value) "Done" else "Edit",
+                color = Color.White
+            )
         }
+    }
+}
 
-        Spacer(modifier = Modifier.height(16.dp))
 
-        // Título
-        Text(
-            text = "Drag and Drop",
-            style = TextStyle(
-                fontFamily = FontTittle,
+@OptIn(ExperimentalLayoutApi::class)
+@RequiresApi(35)
+@Composable
+fun BoxContent(
+    isEditMode: Boolean,
+    assignedCharacters: SnapshotStateList<Character>,
+    availableCharacters: SnapshotStateList<Character>
+) {
+    // Estado para almacenar el nombre editable de la caja
+    var boxTitle by remember { mutableStateOf("Assigned Characters") }
+
+    Column(modifier = Modifier.fillMaxSize()) {
+        // TextField para editar el nombre de la caja
+        TextField(
+            value = boxTitle,
+            onValueChange = { newValue -> boxTitle = newValue },
+            textStyle = TextStyle(
+                fontSize = 16.sp,
                 fontWeight = FontWeight.Bold,
-                fontSize = 32.sp,
                 color = Color.Black
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
-            textAlign = TextAlign.Center
+                .padding(bottom = 8.dp),
+            singleLine = true,
+            placeholder = {
+                Text(
+                    text = "Enter box name",
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold)
+                )
+            },
+            colors = TextFieldDefaults.textFieldColors(
+                containerColor = Color.LightGray,
+                focusedIndicatorColor = Color.Black,
+                unfocusedIndicatorColor = Color.Gray
+            )
         )
 
-        CharactersGridDragable(
-            filteredList = characterFetch(),
-            navController = navHostController,
-            onDragStart = { character ->
-                draggedCharacter.value = character
-                isDragging.value = true
-            },
-            onDrag = { change, dragAmount ->
-                change.consume() // Indica que el evento fue manejado
-                dragOffset.value += dragAmount
-            },
-            onDragEnd = {
-                isDragging.value = false
-                draggedCharacter.value = null
-            },
-            navigateTo = { character -> "charactersInfo/${character.id}" }
-        )
-    }
-}
-
-// Clase de datos para manejar las propiedades de cada caja
-data class BoxData(val isActive: Boolean = true)
-
-
-@Composable
-fun CharactersGridDragable(
-    filteredList: List<Character>,
-    navController: NavHostController,
-    onDragStart: (Character) -> Unit,
-    onDrag: (PointerInputChange, Offset) -> Unit,
-    onDragEnd: () -> Unit,
-    navigateTo: (Character) -> String
-) {
-    LazyVerticalGrid(
-        columns = GridCells.Fixed(5),
-        contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        items(filteredList) { character ->
-            Box(
-                modifier = Modifier
-                    .pointerInput(Unit) {
-                        detectDragGestures(
-                            onDragStart = { onDragStart(character) },
-                            onDrag = onDrag,
-                            onDragEnd = onDragEnd
-                        )
+        // Mostrar personajes asignados dentro de la caja
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        ) {
+            if (assignedCharacters.isEmpty()) {
+                // Mensaje si no hay personajes asignados
+                Text(
+                    text = "Click on a character to add them here",
+                    style = TextStyle(fontSize = 16.sp, fontWeight = FontWeight.Bold),
+                    modifier = Modifier.align(Alignment.Center)
+                )
+            } else {
+                // Organizar personajes en un flujo dinámico
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    assignedCharacters.forEach { character ->
+                        Box(
+                            modifier = Modifier
+                                .size(60.dp) // Tamaño fijo para cada personaje
+                                .aspectRatio(1f) // Mantén la relación de aspecto cuadrada
+                        ) {
+                            CharacterCard(character = character, onClick = {
+                                if (isEditMode) {
+                                    assignedCharacters.remove(character) // Actualiza el estado
+                                    availableCharacters.addFirst(character)
+                                }
+                            })
+                        }
                     }
-            ) {
-                CharacterCard(character) {
-                    navController.navigate(navigateTo(character))
                 }
             }
         }
@@ -185,5 +211,52 @@ fun CharactersGridDragable(
 
 
 
+@Composable
+fun CharactersBoxClickable(
+    filteredList: List<Character>,
+    onCharacterClick: (Character) -> Unit,
+    columns: Int = 6 // Define cuántas columnas tendrá la "cuadrícula"
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp)
+    ) {
+        // Agrupa los personajes en filas
+        val rows = filteredList.chunked(columns)
 
+        Column(
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            rows.forEach { row ->
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    row.forEach { character ->
+                        Box(
+                            modifier = Modifier
+                                .weight(1f) // Divide el espacio disponible entre las columnas
+                                .aspectRatio(1f) // Mantiene una relación de aspecto cuadrada
+                        ) {
+                            CharacterCard(character) {
+                                onCharacterClick(character)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
 
+@Composable
+private fun CharacterFetchRemovable(
+    allCharacters: MutableState<List<Character>>,
+    availableCharacters: SnapshotStateList<Character>
+) {
+    LaunchedEffect(key1 = Unit) {
+        val characters = fetchCharacters() // Función que obtiene los personajes
+        allCharacters.value = characters
+        availableCharacters.addAll(characters)
+    }
+}
