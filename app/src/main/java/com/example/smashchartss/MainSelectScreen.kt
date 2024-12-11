@@ -2,16 +2,15 @@ package com.example.smashchartss
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.detectDragGestures
-import androidx.compose.foundation.gestures.draggable
-import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
@@ -19,10 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.pointer.PointerInputChange
-import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -33,8 +29,6 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.smashchartss.ui.theme.FontTittle
 
-
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainSelectScreen(navController: NavHostController) {
     var searchQuery by remember { mutableStateOf("") } // Query de búsqueda
@@ -52,7 +46,7 @@ fun MainSelectScreen(navController: NavHostController) {
             style = TextStyle(
                 fontFamily = FontTittle,
                 fontWeight = FontWeight.Bold,
-                fontSize = 32.sp,
+                fontSize = 45.sp,
                 color = Color.Black
             ),
             modifier = Modifier
@@ -62,35 +56,47 @@ fun MainSelectScreen(navController: NavHostController) {
             textAlign = TextAlign.Center
         )
 
-        // Campo de búsqueda
-        TextField(
-            value = searchQuery,
-            onValueChange = { searchQuery = it },
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 8.dp),
-            placeholder = { Text("Search Characters...") },
-            singleLine = true,
-            colors = TextFieldDefaults.textFieldColors(
-                containerColor = Color.LightGray.copy(alpha = 0.2f),
-                focusedIndicatorColor = Color.Transparent,
-                unfocusedIndicatorColor = Color.Transparent
-            )
-        )
+        // Campo de búsqueda con ícono de lupa
+        SearchField(searchQuery) { query -> searchQuery = query }
 
         // Grid de personajes filtrados
-        CharactersGrid(
-            filteredList,
-            navController,
-        )
+        CharactersGrid(filteredList, navController)
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun CharactersGrid(
-    filteredList: List<Character>,
-    navController: NavHostController
-) {
+fun SearchField(searchQuery: String, onSearchQueryChanged: (String) -> Unit) {
+    TextField(
+        value = searchQuery,
+        onValueChange = onSearchQueryChanged,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        placeholder = {
+            Text(
+                text = "Search Characters...",
+                style = TextStyle(color = Color.Gray)
+            )
+        },
+        singleLine = true,
+        colors = TextFieldDefaults.textFieldColors(
+            containerColor = Color.LightGray.copy(alpha = 0.2f),
+            focusedIndicatorColor = Color.Transparent,
+            unfocusedIndicatorColor = Color.Transparent
+        ),
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = "Search Icon",
+                tint = Color.Black
+            )
+        }
+    )
+}
+
+@Composable
+fun CharactersGrid(filteredList: List<Character>, navController: NavHostController) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(5),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
@@ -134,7 +140,3 @@ fun CharacterCard(character: Character, onClick: () -> Unit) {
         )
     }
 }
-
-
-
-

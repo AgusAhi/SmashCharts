@@ -15,11 +15,14 @@ import androidx.compose.ui.platform.LocalView
 
 private val DarkColorScheme = darkColorScheme(
     primary = RedSmash,
+    secondary = RedSmashLight,
+    tertiary = RedSmashSuperLight,
 )
 
 private val LightColorScheme = lightColorScheme(
     primary = RedSmash,
-    surface = RedSmash,
+    secondary = RedSmashLight,
+    tertiary = RedSmashSuperLight,
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

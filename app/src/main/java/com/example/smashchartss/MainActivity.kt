@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.smashchartss.ui.theme.FontTittle
 import com.example.smashchartss.ui.theme.SmashChartssTheme
 
 class MainActivity : ComponentActivity() {
