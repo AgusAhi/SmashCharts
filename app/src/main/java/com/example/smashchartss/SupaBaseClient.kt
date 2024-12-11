@@ -2,6 +2,8 @@ package com.example.smashchartss
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewModelScope
 import io.github.jan.supabase.annotations.SupabaseExperimental
 import io.github.jan.supabase.annotations.SupabaseInternal
 import io.github.jan.supabase.createSupabaseClient
@@ -11,6 +13,8 @@ import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import android.util.Log
+import kotlinx.serialization.Serializable
+import kotlinx.coroutines.runBlocking
 
 // CONEXION A SUPABASE
 object SupaBaseClient {
@@ -40,5 +44,4 @@ suspend fun fetchCharacters(): List<Character> {
         emptyList() // En caso de error, devuelve una lista vacía
     }
 }
-
 

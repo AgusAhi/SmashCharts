@@ -1,5 +1,6 @@
 package com.example.smashchartss
 
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -28,6 +29,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.smashchartss.ui.theme.FontTittle
+import io.github.jan.supabase.postgrest.postgrest
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun MainSelectScreen(navController: NavHostController) {

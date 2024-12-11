@@ -3,17 +3,12 @@ package com.example.smashchartss
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
-import com.example.smashchartss.ui.theme.FontTittle
 import com.example.smashchartss.ui.theme.SmashChartssTheme
 
 class MainActivity : ComponentActivity() {
@@ -27,6 +22,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
+
+/*
+todo poner el nombre del personaje en la topAPPBar
+todo funcionalidad del botón de compartir
+todo funcionalidad del botón de settings con la info del programa
+todo apartado de información de cada personaje por IA
+todo character info page donde veremos los cambios de balance de cada uno y la info por ia que es lo mismo que lo de arriba pero en otra pantalla
+*/
 
 @Composable
 fun AppNavigator() {

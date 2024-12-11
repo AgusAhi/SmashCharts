@@ -47,13 +47,6 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.smashchartss.ui.theme.FontTittle
 
-/*
-todo poner el nombre del personaje en la topAPPBar
-todo funcionalidad del botón de compartir
-todo funcionalidad del botón de settings
-todo apartado de información de cada personaje
-*/
-
 @RequiresApi(35)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

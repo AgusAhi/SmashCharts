@@ -32,7 +32,22 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Go Back", tint = Color.White)
                     }
                 },
-                title = {},
+                title = {
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Smash O Charts",
+                            style = TextStyle(
+                                fontFamily = FontTittle,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
+                        )
+                    }
+                },
                 actions = {
                     IconButton(onClick = { /* Add your settings action here */ }) {
                         Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
@@ -77,6 +92,21 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
                     .height(60.dp)
             ) {
                 Text("Matchup Chart")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Botón para función futura
+            Button(
+                onClick = {
+                    // Acción para la función "Coming soon"
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(60.dp)
+            ) {
+                Text("Character Info")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
