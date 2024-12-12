@@ -2,6 +2,7 @@
 
 package com.example.smashchartss
 
+import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -36,15 +37,22 @@ import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.smashchartss.ui.theme.FontTittle
 
 @RequiresApi(35)
@@ -57,6 +65,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
     val boxes = remember { mutableStateListOf(BoxState("Default Box", mutableStateListOf())) }
     val showDialog = remember { mutableStateOf(false) } // Estado para el diálogo
     var selectedCharacter by remember { mutableStateOf<Character?>(null) } // Personaje seleccionado
+    val currentCharacter = allCharacters.value.find { it.id == characterId }
 
     // Cargar personajes
     CharacterFetchRemovable(allCharacters, availableCharacters, characterId)
@@ -73,15 +82,20 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                     }
                 },
                 title = {
-                    Text(
-                        text = "Matchup Chart",
-                        style = TextStyle(
-                            fontFamily = FontTittle,
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            color = Color.White
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = currentCharacter?.name ?: "Matchup Chart", // Título dinámico
+                            style = TextStyle(
+                                fontFamily = FontTittle,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
                         )
-                    )
+                    }
                 },
                 actions = {
                     IconButton(onClick = { /*TODO*/ }) {
@@ -111,7 +125,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
 
             FloatingActionButton(
                 onClick = { isEditMode.value = !isEditMode.value },
-                containerColor = if (isEditMode.value) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.secondary
+                containerColor = MaterialTheme.colorScheme.primary
             ) {
                 Box(
                     modifier = Modifier
@@ -149,7 +163,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                 Spacer(modifier = Modifier.height(16.dp))
 
                 // Mostrar carta del personaje seleccionado
-                allCharacters.value.find { it.id == characterId }?.let {
+                currentCharacter?.let {
                     CharacterCard(character = it, onClick = {})
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -262,7 +276,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
 // Clase para representar una caja con título y lista de personajes asignados
 data class BoxState(var title: String, val characters: SnapshotStateList<Character>)
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun BoxContent(
     boxState: BoxState,
@@ -271,6 +285,7 @@ fun BoxContent(
 ) {
     // Estado local para manejar el título editable de la caja
     var editableTitle by remember { mutableStateOf(boxState.title) }
+    val focusManager = LocalFocusManager.current // Gestionar el foco
 
     Column(
         modifier = Modifier
@@ -285,7 +300,8 @@ fun BoxContent(
                 color = Color.Gray, // Borde gris más oscuro
                 shape = RoundedCornerShape(12.dp)
             )
-            .padding(16.dp) // Espaciado interno
+            .padding(16.dp)
+            .clickable { focusManager.clearFocus() }, // Oculta el teclado al hacer clic fuera del TextField
     ) {
         TextField(
             value = editableTitle,
@@ -297,17 +313,18 @@ fun BoxContent(
                 fontWeight = FontWeight.Bold,
                 fontSize = 18.sp,
                 color = MaterialTheme.colorScheme.onSurface, // Color del texto dinámico
-                textAlign = TextAlign.Center // Añadido para centrar el texto
+                textAlign = TextAlign.Center // Centrar texto
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(bottom = 8.dp),
+                .padding(bottom = 8.dp)
+                .clickable { /* Evitar que otros clics cierren el teclado */ },
             placeholder = {
                 Text(
                     "Enter box title",
                     color = Color.Gray,
                     modifier = Modifier.fillMaxWidth(),
-                    textAlign = TextAlign.Center // Centra el placeholder
+                    textAlign = TextAlign.Center
                 )
             },
             singleLine = true,
@@ -323,13 +340,13 @@ fun BoxContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 8.dp),
-            horizontalArrangement = Arrangement.Center, // Centra los personajes horizontalmente
-            verticalArrangement = Arrangement.spacedBy(8.dp) // Espaciado vertical entre filas
+            horizontalArrangement = Arrangement.Center,
+            verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             boxState.characters.forEachIndexed { index, character ->
                 Box(
                     modifier = Modifier
-                        .width(64.dp) // Ancho fijo para cada tarjeta
+                        .width(64.dp)
                         .padding(4.dp),
                     contentAlignment = Alignment.Center
                 ) {
@@ -341,7 +358,6 @@ fun BoxContent(
                     })
                 }
 
-                // Inserta un espacio después de cada conjunto de 5 personajes
                 if ((index + 1) % 5 == 0) {
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -349,6 +365,7 @@ fun BoxContent(
         }
     }
 }
+
 
 
 @Composable
@@ -402,7 +419,9 @@ fun showBoxSelectionDialog(
 fun CharactersBoxClickable(
     filteredList: List<Character>,
     onCharacterClick: (Character) -> Unit,
-    columns: Int = 6 // Define cuántas columnas tendrá la "cuadrícula"
+    columns: Int = 6, // Define cuántas columnas tendrá la "cuadrícula"
+    isEditMode: Boolean = false, // Nuevo parámetro para el modo de edición
+    navHostController: NavHostController? = null // Controlador de navegación opcional
 ) {
     Box(
         modifier = Modifier
@@ -430,7 +449,11 @@ fun CharactersBoxClickable(
                                 .aspectRatio(1f) // Mantiene una relación de aspecto cuadrada
                         ) {
                             if (character != null) {
-                                CharacterCard(character) {
+                                CharacterCardClickable(
+                                    character = character,
+                                    isEditMode = isEditMode,
+                                    navHostController = navHostController
+                                ) {
                                     onCharacterClick(character)
                                 }
                             }
@@ -443,8 +466,9 @@ fun CharactersBoxClickable(
 }
 
 
+
 @Composable
-private fun CharacterFetchRemovable(
+fun CharacterFetchRemovable(
     allCharacters: MutableState<List<Character>>,
     availableCharacters: SnapshotStateList<Character>,
     excludedCharacterId: String? // Nuevo parámetro para excluir el personaje
@@ -455,6 +479,62 @@ private fun CharacterFetchRemovable(
         availableCharacters.addAll(
             characters.filter { it.id != excludedCharacterId } // Filtra el personaje excluido
         )
+
     }
 }
+
+@Composable
+fun CharacterCardClickable(
+    character: Character,
+    isEditMode: Boolean,
+    navHostController: NavHostController?,
+    onClick: (() -> Unit)? = null
+) {
+    Box(
+        modifier = Modifier
+            .size(70.dp)
+            .clip(RoundedCornerShape(64.dp))
+            .background(MaterialTheme.colorScheme.tertiary)
+            .clickable {
+                if (!isEditMode && navHostController != null) {
+                    navHostController.navigate("characterDetails/${character.id}")
+                } else {
+                    onClick?.invoke()
+                }
+            },
+        contentAlignment = Alignment.Center
+    ) {
+        AsyncImage(
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(character.icon_url)
+                .crossfade(true)
+                .diskCachePolicy(CachePolicy.ENABLED) // Habilita caché en disco
+                .memoryCachePolicy(CachePolicy.ENABLED) // Habilita caché en memoria
+                .build(),
+            contentDescription = "Character Icon",
+            modifier = Modifier.size(64.dp),
+            contentScale = ContentScale.Crop
+        )
+
+        if (isEditMode) {
+            Box(
+                modifier = Modifier
+                    .matchParentSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+            )
+            Text(
+                text = "Edit",
+                style = TextStyle(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 12.sp,
+                    color = Color.White
+                ),
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+    }
+}
+
+
+
 

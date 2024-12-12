@@ -1,8 +1,10 @@
 package com.example.smashchartss
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -12,6 +14,7 @@ import androidx.navigation.navArgument
 import com.example.smashchartss.ui.theme.SmashChartssTheme
 
 class MainActivity : ComponentActivity() {
+    @RequiresApi(35)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -24,13 +27,13 @@ class MainActivity : ComponentActivity() {
 }
 
 /*
-todo poner el nombre del personaje en la topAPPBar
+FUTURO: todo que en matchupChart puedas dirigirte a cada personaje con el botón individualmente
 todo funcionalidad del botón de compartir
 todo funcionalidad del botón de settings con la info del programa
-todo apartado de información de cada personaje por IA
-todo character info page donde veremos los cambios de balance de cada uno y la info por ia que es lo mismo que lo de arriba pero en otra pantalla
+todo bug de que se abre el teclado
 */
 
+@RequiresApi(35)
 @Composable
 fun AppNavigator() {
     val navController = rememberNavController()
@@ -39,32 +42,52 @@ fun AppNavigator() {
         navController = navController,
         startDestination = "MainSelectScreen"
     ) {
+        // Pantalla principal
         composable("MainSelectScreen") {
             MainSelectScreen(navController = navController)
         }
 
-        // Menu Screen
-
+        // Pantalla del menú de un personaje
         composable(
             route = "menuScreen/{characterId}",
             arguments = listOf(navArgument("characterId") { type = NavType.StringType })
         ) { backStackEntry ->
             val characterId = backStackEntry.arguments?.getString("characterId")
-            MenuScreen(characterId = characterId, navHostController = navController)
+            if (!characterId.isNullOrEmpty()) {
+                MenuScreen(characterId = characterId, navHostController = navController)
+            } else {
+                Log.e("AppNavigator", "characterId is null or empty in menuScreen route.")
+            }
         }
 
-        // Matchup Chart
-
+        // Pantalla de la tabla de enfrentamientos
         composable(
             route = "matchupChart/{characterId}",
             arguments = listOf(navArgument("characterId") { type = NavType.StringType })
         ) { backStackEntry ->
             val characterId = backStackEntry.arguments?.getString("characterId")
-            MatchupChart(characterId = characterId, navHostController = navController)
+            if (!characterId.isNullOrEmpty()) {
+                MatchupChart(characterId = characterId, navHostController = navController)
+            } else {
+                Log.e("AppNavigator", "characterId is null or empty in matchupChart route.")
+            }
         }
 
+        // Pantalla de detalles del personaje
+        composable(
+            route = "characterDetail/{characterId}",
+            arguments = listOf(navArgument("characterId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val characterId = backStackEntry.arguments?.getString("characterId")
+            if (!characterId.isNullOrEmpty()) {
+                CharacterDetailsScreen(characterId = characterId, navHostController = navController)
+            } else {
+                Log.e("AppNavigator", "characterId is null or empty in characterDetail route.")
+            }
+        }
     }
 }
+
 
 
 

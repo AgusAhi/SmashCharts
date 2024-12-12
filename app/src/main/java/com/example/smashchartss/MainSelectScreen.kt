@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -28,9 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import coil.request.CachePolicy
+import coil.request.ImageRequest
 import com.example.smashchartss.ui.theme.FontTittle
-import io.github.jan.supabase.postgrest.postgrest
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun MainSelectScreen(navController: NavHostController) {
@@ -136,10 +137,16 @@ fun CharacterCard(character: Character, onClick: () -> Unit) {
         contentAlignment = Alignment.Center
     ) {
         AsyncImage(
-            model = character.icon_url,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(character.icon_url)
+                .crossfade(true)
+                .diskCachePolicy(CachePolicy.ENABLED) // Habilita caché en disco
+                .memoryCachePolicy(CachePolicy.ENABLED) // Habilita caché en memoria
+                .build(),
             contentDescription = "Character Icon",
-            modifier = Modifier.size(64.dp), // Tamaño ajustado para la imagen
+            modifier = Modifier.size(64.dp),
             contentScale = ContentScale.Crop
         )
+
     }
 }

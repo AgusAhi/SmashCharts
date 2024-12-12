@@ -96,10 +96,9 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // Botón para función futura
             Button(
                 onClick = {
-                    // Acción para la función "Coming soon"
+                    navHostController.navigate("characterDetail/$characterId")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier
@@ -108,6 +107,7 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
             ) {
                 Text("Character Info")
             }
+
 
             Spacer(modifier = Modifier.height(16.dp))
 
