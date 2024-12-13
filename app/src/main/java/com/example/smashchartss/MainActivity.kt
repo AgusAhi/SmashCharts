@@ -1,5 +1,6 @@
 package com.example.smashchartss
 
+import ChatBotScreen
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -85,6 +86,12 @@ fun AppNavigator() {
                 Log.e("AppNavigator", "characterId is null or empty in characterDetail route.")
             }
         }
+
+        // Pantalla de chatbot
+        composable("chatBot") {
+            ChatBotScreen(navHostController = navController)
+        }
+
     }
 }
 

@@ -54,6 +54,19 @@ android {
 
 dependencies {
 
+    // Ktor client
+    implementation ("io.ktor:ktor-client-core:2.0.3")
+    implementation ("io.ktor:ktor-client-cio:2.0.3")
+    implementation ("io.ktor:ktor-client-content-negotiation:2.0.3")
+    implementation ("io.ktor:ktor-serialization-kotlinx-json:2.0.3")
+    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+
+// Kotlinx Coroutines
+    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+
+// Compose dependencies (ya deberías tenerlas)
+    implementation ("androidx.compose.material3:material3:1.1.0")
+
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
@@ -67,7 +80,6 @@ dependencies {
     implementation(libs.postgrest.kt)
     implementation(libs.ktor.client.android)
     implementation(libs.kotlinx.serialization.json)
-
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

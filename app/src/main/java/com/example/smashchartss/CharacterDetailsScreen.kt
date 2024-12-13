@@ -1,19 +1,13 @@
 package com.example.smashchartss
 
 import android.util.Log
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -24,18 +18,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.smashchartss.ui.theme.FontTittle
+import io.ktor.client.*
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
+import kotlinx.coroutines.launch
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.serialization.kotlinx.json.*
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.Serializable
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterDetailsScreen(characterId: String, navHostController: NavHostController) {
-    val currentCharacter = remember { mutableStateOf<Character?>(null) }
     val allCharacters = remember { mutableStateOf<List<Character>>(emptyList()) }
     val availableCharacters = remember { mutableStateListOf<Character>() }
+    val currentCharacter = allCharacters.value.find { it.id == characterId }
 
     // Lógica para obtener los datos del personaje
     CharacterFetchForDetails(
         characterId = characterId,
-        currentCharacter = currentCharacter,
         allCharacters = allCharacters,
         availableCharacters = availableCharacters
     )
@@ -52,14 +59,20 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
                     }
                 },
                 title = {
-                    Text(
-                        text = "Character Details",
-                        style = TextStyle(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 24.sp,
-                            color = Color.White
+                    Box(
+                        modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "${currentCharacter?.name} details" ?: "Matchup Chart", // Título dinámico (Dynamic Title)
+                            style = TextStyle(
+                                fontFamily = FontTittle,
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 24.sp,
+                                color = Color.White
+                            )
                         )
-                    )
+                    }
                 }
             )
         }
@@ -68,9 +81,7 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .padding(16.dp)
         ) {
             Text(
                 text = "Details for character: $characterId",
@@ -80,33 +91,28 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
                 ),
                 textAlign = TextAlign.Center
             )
+
         }
     }
 }
 
-
-
 @Composable
 fun CharacterFetchForDetails(
     characterId: String,
-    currentCharacter: MutableState<Character?>,
     allCharacters: MutableState<List<Character>>,
     availableCharacters: SnapshotStateList<Character>
 ) {
     LaunchedEffect(key1 = characterId) {
         try {
             Log.d("CharacterFetchForDetails", "Fetching characters for ID: $characterId")
-            val characters = fetchCharacters() // Tu lógica para obtener los personajes
+            val characters = fetchCharacters() // Implementa tu lógica aquí
             Log.d("CharacterFetchForDetails", "Characters fetched: ${characters.size}")
 
             allCharacters.value = characters
-
-            val selectedCharacter = characters.find { it.id == characterId }
-            currentCharacter.value = selectedCharacter
             availableCharacters.clear()
             availableCharacters.addAll(characters.filter { it.id != characterId })
 
-            if (selectedCharacter == null) {
+            if (!characters.any { it.id == characterId }) {
                 Log.e("CharacterFetchForDetails", "Character not found for ID: $characterId")
             }
         } catch (e: Exception) {
@@ -114,6 +120,11 @@ fun CharacterFetchForDetails(
         }
     }
 }
+
+
+
+
+
 
 
 

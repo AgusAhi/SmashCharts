@@ -111,6 +111,21 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            Button(
+                onClick = {
+                    navHostController.navigate("chatBot") // Sin el parámetro characterId
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+                modifier = Modifier
+                    .width(200.dp)
+                    .height(60.dp)
+            ) {
+                Text("ChatBot")
+            }
+
+
+            Spacer(modifier = Modifier.height(16.dp))
+
             // Botón para función futura
             Button(
                 onClick = {
