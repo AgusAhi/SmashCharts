@@ -52,6 +52,7 @@ import kotlinx.atomicfu.TraceBase.None.append
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatBotScreen(navHostController: NavHostController) {

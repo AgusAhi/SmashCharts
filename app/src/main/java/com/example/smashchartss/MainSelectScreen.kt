@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -131,7 +132,7 @@ fun CharacterCard(character: Character, onClick: () -> Unit) {
     Box(
         modifier = Modifier
             .size(70.dp) // Tamaño compacto para cada icono
-            .clip(CircleShape) // Forma circular para los íconos
+            .clip(RoundedCornerShape(64.dp))
             .background(Color.LightGray) // Color de fondo para placeholders
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center

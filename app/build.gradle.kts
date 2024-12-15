@@ -53,33 +53,34 @@ android {
 }
 
 dependencies {
+    // Google accompanist
+    implementation ("com.google.accompanist:accompanist-navigation-animation:0.32.0")
+    implementation ("androidx.navigation:navigation-compose:2.7.2")
+    implementation ("androidx.palette:palette-ktx:1.0.0")
+    implementation ("com.google.accompanist:accompanist-systemuicontroller:0.28.0")
 
     // Ktor client
-    implementation ("io.ktor:ktor-client-core:2.0.3")
-    implementation ("io.ktor:ktor-client-cio:2.0.3")
-    implementation ("io.ktor:ktor-client-content-negotiation:2.0.3")
-    implementation ("io.ktor:ktor-serialization-kotlinx-json:2.0.3")
-    implementation ("org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3")
+    implementation("io.ktor:ktor-client-core:2.2.4")
+    implementation("io.ktor:ktor-client-cio:2.2.4")
+    implementation("io.ktor:ktor-client-content-negotiation:2.2.4")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.2.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
-// Kotlinx Coroutines
-    implementation ("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
+    // Supabase
+    implementation("io.github.jan-tennert.supabase:postgrest-kt:0.9.1")
+    implementation("io.github.jan-tennert.supabase:realtime-kt:0.9.1")
 
-// Compose dependencies (ya deberías tenerlas)
-    implementation ("androidx.compose.material3:material3:1.1.0")
+    // Kotlinx Coroutines
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
+    // Compose dependencies
+    implementation("androidx.compose.material3:material3:1.1.0")
 
     // Navigation
     implementation(libs.androidx.navigation.compose)
 
     // Network Image
     implementation(libs.coil.compose)
-
-    // Supabase
-    implementation(platform(libs.supabase.bom))
-    implementation(libs.realtime.kt)
-    implementation(libs.postgrest.kt)
-    implementation(libs.ktor.client.android)
-    implementation(libs.kotlinx.serialization.json)
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
@@ -89,6 +90,8 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
+    implementation(libs.androidx.foundation.android)
+    implementation(libs.androidx.foundation.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

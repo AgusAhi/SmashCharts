@@ -1,13 +1,18 @@
 package com.example.smashchartss
 
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -20,6 +25,10 @@ import com.example.smashchartss.ui.theme.FontTittle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(characterId: String?, navHostController: NavHostController) {
+    var isMenuOpen by remember { mutableStateOf(false) }
+    var settingsIconRotation by remember { mutableStateOf(0f) }
+
+    val animatedRotation by animateFloatAsState(targetValue = settingsIconRotation)
 
     Scaffold(
         topBar = {
@@ -49,8 +58,54 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
                     }
                 },
                 actions = {
-                    IconButton(onClick = { /* Add your settings action here */ }) {
-                        Icon(Icons.Default.Settings, contentDescription = "Settings", tint = Color.White)
+                    // Botón de settings con animación
+                    IconButton(onClick = {
+                        isMenuOpen = !isMenuOpen
+                        settingsIconRotation += 360f
+                    }) {
+                        Icon(
+                            Icons.Default.Settings,
+                            contentDescription = "Settings",
+                            tint = Color.White,
+                            modifier = Modifier.rotate(animatedRotation)
+                        )
+                    }
+
+                    DropdownMenu(
+                        expanded = isMenuOpen,
+                        onDismissRequest = { isMenuOpen = false },
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surface) // Opcional: añade un fondo
+                    ) {
+                        DropdownMenuItem(
+                            text = { Text("Settings") },
+                            onClick = {
+                                navHostController.navigate("settings")
+                                isMenuOpen = false // Cierra el menú después de navegar
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Settings, contentDescription = "Settings") // Opcional: añade un ícono
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Profile") },
+                            onClick = {
+                                navHostController.navigate("profile")
+                                isMenuOpen = false // Cierra el menú después de navegar
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Person, contentDescription = "Perfil") // Opcional: añade un ícono
+                            }
+                        )
+                        DropdownMenuItem(
+                            text = { Text("Info") },
+                            onClick = {
+                                navHostController.navigate("appInfo")
+                                isMenuOpen = false // Cierra el menú después de navegar
+                            },
+                            leadingIcon = {
+                                Icon(Icons.Default.Info, contentDescription = "App Info") // Opcional: añade un ícono
+                            }
+                        )
                     }
                 }
             )
@@ -113,7 +168,7 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
 
             Button(
                 onClick = {
-                    navHostController.navigate("chatBot") // Sin el parámetro characterId
+                    navHostController.navigate("chatBot")
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                 modifier = Modifier

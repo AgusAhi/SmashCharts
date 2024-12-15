@@ -4,8 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewModelScope
-import io.github.jan.supabase.annotations.SupabaseExperimental
-import io.github.jan.supabase.annotations.SupabaseInternal
+
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.realtime.Realtime
@@ -13,8 +12,13 @@ import io.ktor.client.plugins.websocket.WebSockets
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import android.util.Log
+import io.github.jan.supabase.annotiations.SupabaseInternal
+import io.github.jan.supabase.postgrest.rpc
 import kotlinx.serialization.Serializable
-import kotlinx.coroutines.runBlocking
+
+
+
+
 
 // CONEXION A SUPABASE
 object SupaBaseClient {
@@ -31,6 +35,9 @@ object SupaBaseClient {
     }
 }
 
+
+
+
 // TABLA LISTA DE PERSONAJES
 suspend fun fetchCharacters(): List<Character> {
     return try {
@@ -44,4 +51,27 @@ suspend fun fetchCharacters(): List<Character> {
         emptyList() // En caso de error, devuelve una lista vacía
     }
 }
+
+suspend fun fetchChangesByCharacterId(characterId: String): List<Changes> {
+    return try {
+        SupaBaseClient.client
+            .postgrest
+            .rpc("fetch_changes_by_character_id", mapOf("character_id" to characterId))
+            .decodeList<Changes>()
+    } catch (e: Exception) {
+        Log.e("Supabase", "Error fetching changes: ${e.message}", e)
+        emptyList() // En caso de error, devuelve una lista vacía
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
 

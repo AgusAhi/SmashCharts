@@ -14,11 +14,11 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.smashchartss.ui.theme.SmashChartssTheme
 
+
 class MainActivity : ComponentActivity() {
     @RequiresApi(35)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         setContent {
             SmashChartssTheme {
                 AppNavigator()
@@ -27,17 +27,22 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+
 /*
 FUTURO: todo que en matchupChart puedas dirigirte a cada personaje con el botón individualmente
-todo funcionalidad del botón de compartir
-todo funcionalidad del botón de settings con la info del programa
-todo bug de que se abre el teclado
+FUTURO funcionalidad del botón de compartir para que me permita exportar una imagen como te guste
+FUTURO funcionalidad del botón de settings, perfil e info
+FUTURO: darle formato al texto para representar distintas secciones (como cambios en la versión o detalles de los ajustes),
+podría usar técnicas de parsing para separar el texto y crear componentes adicionales.
+FUTURO: MAS ANIMACIONES
 */
+
 
 @RequiresApi(35)
 @Composable
 fun AppNavigator() {
     val navController = rememberNavController()
+
 
     NavHost(
         navController = navController,
@@ -47,6 +52,7 @@ fun AppNavigator() {
         composable("MainSelectScreen") {
             MainSelectScreen(navController = navController)
         }
+
 
         // Pantalla del menú de un personaje
         composable(
@@ -61,6 +67,7 @@ fun AppNavigator() {
             }
         }
 
+
         // Pantalla de la tabla de enfrentamientos
         composable(
             route = "matchupChart/{characterId}",
@@ -73,6 +80,7 @@ fun AppNavigator() {
                 Log.e("AppNavigator", "characterId is null or empty in matchupChart route.")
             }
         }
+
 
         // Pantalla de detalles del personaje
         composable(
@@ -87,13 +95,21 @@ fun AppNavigator() {
             }
         }
 
+
         // Pantalla de chatbot
         composable("chatBot") {
             ChatBotScreen(navHostController = navController)
         }
 
+
     }
 }
+
+
+
+
+
+
 
 
 
