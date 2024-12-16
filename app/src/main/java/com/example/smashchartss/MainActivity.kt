@@ -101,6 +101,10 @@ fun AppNavigator() {
             ChatBotScreen(navHostController = navController)
         }
 
+        // Pantalla de info
+
+        composable("appInfo") { AppInfoScreen() } // Añade esta línea para la nueva clase
+
 
     }
 }

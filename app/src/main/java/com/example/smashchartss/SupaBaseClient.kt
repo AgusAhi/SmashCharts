@@ -35,9 +35,6 @@ object SupaBaseClient {
     }
 }
 
-
-
-
 // TABLA LISTA DE PERSONAJES
 suspend fun fetchCharacters(): List<Character> {
     return try {
