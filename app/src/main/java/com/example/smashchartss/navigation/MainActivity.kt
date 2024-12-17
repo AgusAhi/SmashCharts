@@ -1,6 +1,5 @@
-package com.example.smashchartss
+package com.example.smashchartss.navigation
 
-import ChatBotScreen
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -12,6 +11,12 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.smashchartss.ui.screens.AppInfoScreen
+import com.example.smashchartss.ui.screens.CharacterDetailsScreen
+import com.example.smashchartss.ui.screens.ChatBotScreen
+import com.example.smashchartss.ui.screens.MainSelectScreen
+import com.example.smashchartss.ui.screens.MatchupChart
+import com.example.smashchartss.ui.screens.MenuScreen
 import com.example.smashchartss.ui.theme.SmashChartssTheme
 
 
@@ -26,17 +31,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-
-/*
-FUTURO: todo que en matchupChart puedas dirigirte a cada personaje con el botón individualmente
-FUTURO funcionalidad del botón de compartir para que me permita exportar una imagen como te guste
-FUTURO funcionalidad del botón de settings, perfil e info
-FUTURO: darle formato al texto para representar distintas secciones (como cambios en la versión o detalles de los ajustes),
-podría usar técnicas de parsing para separar el texto y crear componentes adicionales.
-FUTURO: MAS ANIMACIONES
-*/
-
 
 @RequiresApi(35)
 @Composable
@@ -103,7 +97,9 @@ fun AppNavigator() {
 
         // Pantalla de info
 
-        composable("appInfo") { AppInfoScreen() } // Añade esta línea para la nueva clase
+        composable("appInfo") {
+            AppInfoScreen(navHostController = navController)
+        } // Añade esta línea para la nueva clase
 
 
     }

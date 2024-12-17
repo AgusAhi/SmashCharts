@@ -1,8 +1,7 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package com.example.smashchartss
+package com.example.smashchartss.ui.screens
 
-import android.util.Log
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -53,8 +52,11 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.CachePolicy
 import coil.request.ImageRequest
+import com.example.smashchartss.data.models.Character
+import com.example.smashchartss.data.remote.fetchCharacters
 import com.example.smashchartss.ui.theme.FontTittle
 
+// Pantalla de Matchup Chart
 @RequiresApi(35)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -149,7 +151,6 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                 }
             }
         }
-
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -276,6 +277,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
 // Clase para representar una caja con título y lista de personajes asignados
 data class BoxState(var title: String, val characters: SnapshotStateList<Character>)
 
+// Función para mostrar el contenido de una caja
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun BoxContent(
@@ -367,7 +369,7 @@ fun BoxContent(
 }
 
 
-
+// Función para mostrar el diálogo de selección de caja
 @Composable
 fun showBoxSelectionDialog(
     boxes: List<BoxState>,
@@ -415,6 +417,7 @@ fun showBoxSelectionDialog(
     )
 }
 
+// Función para mostrar la cuadrícula de personajes
 @Composable
 fun CharactersBoxClickable(
     filteredList: List<Character>,
@@ -465,8 +468,7 @@ fun CharactersBoxClickable(
     }
 }
 
-
-
+// Función para obtener la lista de personajes
 @Composable
 fun CharacterFetchRemovable(
     allCharacters: MutableState<List<Character>>,
@@ -483,6 +485,7 @@ fun CharacterFetchRemovable(
     }
 }
 
+// Función para mostrar una tarjeta de personaje
 @Composable
 fun CharacterCardClickable(
     character: Character,

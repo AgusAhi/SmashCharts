@@ -1,11 +1,10 @@
-package com.example.smashchartss
+package com.example.smashchartss.ui.screens
 
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.*
@@ -19,10 +18,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.smashchartss.data.models.Changes
+import com.example.smashchartss.data.models.Character
+import com.example.smashchartss.data.remote.fetchChangesByCharacterId
+import com.example.smashchartss.data.remote.fetchCharacters
 import com.example.smashchartss.ui.theme.FontTittle
-import kotlinx.coroutines.launch
 
-
+// Pantalla de Detalles del Personaje
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CharacterDetailsScreen(characterId: String, navHostController: NavHostController) {
@@ -62,7 +64,7 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = currentCharacter?.name + " Changes" ?: "Unknown Character",
+                            text = (currentCharacter?.name + " Changes") ?: "Unknown Character",
                             style = TextStyle(
                                 fontFamily = FontTittle,
                                 fontWeight = FontWeight.Bold,
@@ -116,6 +118,7 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
     }
 }
 
+// Componente para mostrar los cambios de un personaje
 @Composable
 fun ChangeItem(change: Changes) {
     Column(

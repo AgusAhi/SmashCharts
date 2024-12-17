@@ -1,4 +1,4 @@
-package com.example.smashchartss
+package com.example.smashchartss.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -19,9 +19,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.navigation.NavHostController
+import com.example.smashchartss.R
 
+// Pantalla de Información de la App
 @Composable
-fun AppInfoScreen() {
+fun AppInfoScreen(navHostController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -40,7 +43,7 @@ fun AppInfoScreen() {
 
         // Imagen de ejemplo (sustituible)
         Image(
-            painter = painterResource(id = R.drawable.osagechan), // Reemplaza con tu imagen
+            painter = painterResource(id = R.drawable.osagechan),
             contentDescription = "Logo o imagen informativa",
             modifier = Modifier
                 .size(150.dp)
@@ -80,7 +83,7 @@ fun AppInfoScreen() {
 
         // Botón para volver
         Button(
-            onClick = {},
+            onClick = { navHostController.navigateUp() },
             modifier = Modifier.padding(top = 16.dp)
         ) {
             Text(text = "Back to Menu")

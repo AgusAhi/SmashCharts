@@ -13,11 +13,13 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 
+/*
 private val DarkColorScheme = darkColorScheme(
     primary = RedSmash,
     secondary = RedSmashLight,
     tertiary = RedSmashSuperLight,
 )
+ */
 
 private val LightColorScheme = lightColorScheme(
     primary = RedSmash,
@@ -48,7 +50,7 @@ fun SmashChartssTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        // darkTheme -> DarkColorScheme
         else -> LightColorScheme
     }
 

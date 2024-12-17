@@ -1,11 +1,11 @@
+package com.example.smashchartss.ui.screens
+
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.smashchartss.ChatRequest
+import com.example.smashchartss.data.models.ChatRequest
 import com.example.smashchartss.ui.theme.FontTittle
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.cio.CIO
@@ -44,15 +44,13 @@ import io.ktor.client.request.headers
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
-import io.ktor.client.utils.EmptyContent.headers
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
-import kotlinx.atomicfu.TraceBase.None.append
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 
-
+// CHATBOT
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ChatBotScreen(navHostController: NavHostController) {
@@ -116,6 +114,8 @@ fun ChatBotScreen(navHostController: NavHostController) {
     }
 }
 
+
+// Texto del chatbot
 @Composable
 fun ChatBotSection(
     chatMessages: List<Pair<String, String>>,

@@ -1,4 +1,4 @@
-package com.example.smashchartss
+package com.example.smashchartss.ui.screens
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.smashchartss.ui.theme.FontTittle
 
+
+// Pantalla de Menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(characterId: String?, navHostController: NavHostController) {
