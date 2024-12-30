@@ -1,5 +1,6 @@
 package com.example.smashchartss.navigation
 
+import CharacterDetailsScreen
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -11,12 +12,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.smashchartss.MenuScreen
 import com.example.smashchartss.ui.screens.AppInfoScreen
-import com.example.smashchartss.ui.screens.CharacterDetailsScreen
 import com.example.smashchartss.ui.screens.ChatBotScreen
 import com.example.smashchartss.ui.screens.MainSelectScreen
 import com.example.smashchartss.ui.screens.MatchupChart
-import com.example.smashchartss.ui.screens.MenuScreen
 import com.example.smashchartss.ui.theme.SmashChartssTheme
 
 

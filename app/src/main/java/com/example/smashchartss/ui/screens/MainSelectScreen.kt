@@ -38,36 +38,54 @@ import com.example.smashchartss.ui.theme.FontTittle
 fun MainSelectScreen(navController: NavHostController) {
     var searchQuery by remember { mutableStateOf("") } // Query de búsqueda
 
+
     // Filtrar personajes basados en la búsqueda
     val filteredList = characterFetch().filter {
         it.name.contains(searchQuery, ignoreCase = true)
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
 
-        // Título en la parte superior
-        Text(
-            text = "CHOOSE YOUR CHARACTER",
-            style = TextStyle(
-                fontFamily = FontTittle,
-                fontWeight = FontWeight.Bold,
-                fontSize = 45.sp,
-                color = Color.Black
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
-                .align(Alignment.CenterHorizontally),
-            textAlign = TextAlign.Center
-        )
+    BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        val isLandscape = maxWidth > maxHeight
 
-        // Campo de búsqueda con ícono de lupa
-        SearchField(searchQuery) { query -> searchQuery = query }
 
-        // Grid de personajes filtrados
-        CharactersGrid(filteredList, navController)
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+
+            // Título en la parte superior
+            Text(
+                text = "CHOOSE YOUR CHARACTER",
+                style = TextStyle(
+                    fontFamily = FontTittle,
+                    fontWeight = FontWeight.Bold,
+                    fontSize = 45.sp,
+                    color = Color.Black
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp)
+                    .align(Alignment.CenterHorizontally),
+                textAlign = TextAlign.Center
+            )
+
+
+            // Campo de búsqueda con ícono de lupa
+            SearchField(searchQuery) { query -> searchQuery = query }
+
+
+            // Grid de personajes filtrados adaptado a la orientación
+            if (isLandscape) {
+                CharactersGrid(filteredList, navController, columns = 8)
+            } else {
+                CharactersGrid(filteredList, navController, columns = 4)
+            }
+        }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -100,10 +118,11 @@ fun SearchField(searchQuery: String, onSearchQueryChanged: (String) -> Unit) {
     )
 }
 
+
 @Composable
-fun CharactersGrid(filteredList: List<Character>, navController: NavHostController) {
+fun CharactersGrid(filteredList: List<Character>, navController: NavHostController, columns: Int) {
     LazyVerticalGrid(
-        columns = GridCells.Fixed(5),
+        columns = GridCells.Fixed(columns),
         contentPadding = PaddingValues(horizontal = 8.dp, vertical = 8.dp),
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -116,9 +135,11 @@ fun CharactersGrid(filteredList: List<Character>, navController: NavHostControll
     }
 }
 
+
 @Composable
 fun characterFetch(): List<Character> {
     var characterList by remember { mutableStateOf<List<Character>>(emptyList()) } // Lista de personajes
+
 
     // Obtener la lista de personajes
     LaunchedEffect(key1 = true) {
@@ -126,6 +147,7 @@ fun characterFetch(): List<Character> {
     }
     return characterList
 }
+
 
 @Composable
 fun CharacterCard(character: Character, onClick: () -> Unit) {
@@ -148,6 +170,7 @@ fun CharacterCard(character: Character, onClick: () -> Unit) {
             modifier = Modifier.size(64.dp),
             contentScale = ContentScale.Crop
         )
+
 
     }
 }

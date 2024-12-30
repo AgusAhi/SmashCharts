@@ -1,7 +1,6 @@
-package com.example.smashchartss.ui.screens
-
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -12,6 +11,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -31,6 +31,9 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
     val allCharacters = remember { mutableStateOf<List<Character>>(emptyList()) }
     val characterChanges = remember { mutableStateOf<List<Changes>>(emptyList()) }
     val currentCharacter = allCharacters.value.find { it.id == characterId }
+
+    // Estado para controlar el zoom
+    var scale by remember { mutableStateOf(1f) }
 
     // Lógica para obtener los datos del personaje y sus cambios
     LaunchedEffect(key1 = characterId) {
@@ -77,41 +80,76 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp)
-        ) {
-            if (currentCharacter == null) {
-                Text(
-                    text = "Character not found.",
-                    style = TextStyle(
-                        fontSize = 20.sp,
-                        fontWeight = FontWeight.Medium,
-                        textAlign = TextAlign.Center
-                    ),
-                    modifier = Modifier.fillMaxWidth()
-                )
-            } else {
-                if (characterChanges.value.isEmpty()) {
+        Row(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(padding)
+                    .padding(16.dp)
+                    .pointerInput(Unit) {
+                        detectTransformGestures { _, pan, zoom, _ ->
+                            // Modificar el zoom, con límites entre 0.5 y 2
+                            scale = (scale * zoom).coerceIn(0.5f, 2f)
+                        }
+                    }
+            ) {
+                if (currentCharacter == null) {
                     Text(
-                        text = "No changes available for this character.",
+                        text = "Character not found.",
                         style = TextStyle(
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.Light
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
                         ),
-                        textAlign = TextAlign.Center,
                         modifier = Modifier.fillMaxWidth()
                     )
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        items(characterChanges.value) { change ->
-                            ChangeItem(change = change)
+                    if (characterChanges.value.isEmpty()) {
+                        Text(
+                            text = "No changes available for this character.",
+                            style = TextStyle(
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Light
+                            ),
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    } else {
+                        LazyColumn(
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            items(characterChanges.value) { change ->
+                                ChangeItem(change = change, scale = scale)
+                            }
                         }
                     }
+                }
+            }
+
+            // Indicador del Zoom (barra o texto)
+            Column(
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.CenterVertically)
+            ) {
+                Text(
+                    text = "Zoom: ${(scale * 100).toInt()}%",
+                    style = TextStyle(fontSize = 18.sp, fontWeight = FontWeight.Bold)
+                )
+                Spacer(modifier = Modifier.height(8.dp))
+                // Indicador visual del rango de zoom
+                Box(
+                    modifier = Modifier
+                        .height(200.dp)
+                        .width(10.dp)
+                        .background(Color.Gray)
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .background(Color.Green)
+                            .height((scale * 200).dp) // El tamaño de la barra cambia con el zoom
+                    )
                 }
             }
         }
@@ -120,7 +158,7 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
 
 // Componente para mostrar los cambios de un personaje
 @Composable
-fun ChangeItem(change: Changes) {
+fun ChangeItem(change: Changes, scale: Float) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -128,11 +166,11 @@ fun ChangeItem(change: Changes) {
             .background(MaterialTheme.colorScheme.tertiary)
             .padding(16.dp)
     ) {
-        // Mostrar el texto del cambio de manera más legible
+        // Mostrar el texto del cambio de manera más legible con zoom
         Text(
             text = change.text,
             style = TextStyle(
-                fontSize = 16.sp,
+                fontSize = (16 * scale).sp, // Aplique el zoom al tamaño del texto
                 fontWeight = FontWeight.Normal,
                 color = Color.White
             ),
@@ -141,6 +179,3 @@ fun ChangeItem(change: Changes) {
         )
     }
 }
-
-
-

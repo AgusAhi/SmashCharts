@@ -1,8 +1,11 @@
-package com.example.smashchartss.ui.screens
+package com.example.smashchartss
+
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Info
@@ -23,14 +26,15 @@ import androidx.navigation.NavHostController
 import com.example.smashchartss.ui.theme.FontTittle
 
 
-// Pantalla de Menu
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(characterId: String?, navHostController: NavHostController) {
     var isMenuOpen by remember { mutableStateOf(false) }
     var settingsIconRotation by remember { mutableStateOf(0f) }
 
+
     val animatedRotation by animateFloatAsState(targetValue = settingsIconRotation)
+
 
     Scaffold(
         topBar = {
@@ -60,7 +64,6 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
                     }
                 },
                 actions = {
-                    // Botón de settings con animación
                     IconButton(onClick = {
                         isMenuOpen = !isMenuOpen
                         settingsIconRotation += 360f
@@ -73,39 +76,40 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
                         )
                     }
 
+
                     DropdownMenu(
                         expanded = isMenuOpen,
                         onDismissRequest = { isMenuOpen = false },
-                        modifier = Modifier.background(MaterialTheme.colorScheme.surface) // Opcional: añade un fondo
+                        modifier = Modifier.background(MaterialTheme.colorScheme.surface)
                     ) {
                         DropdownMenuItem(
                             text = { Text("Settings") },
                             onClick = {
                                 navHostController.navigate("settings")
-                                isMenuOpen = false // Cierra el menú después de navegar
+                                isMenuOpen = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Settings, contentDescription = "Settings") // Opcional: añade un ícono
+                                Icon(Icons.Default.Settings, contentDescription = "Settings")
                             }
                         )
                         DropdownMenuItem(
                             text = { Text("Profile") },
                             onClick = {
                                 navHostController.navigate("profile")
-                                isMenuOpen = false // Cierra el menú después de navegar
+                                isMenuOpen = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Person, contentDescription = "Perfil") // Opcional: añade un ícono
+                                Icon(Icons.Default.Person, contentDescription = "Profile")
                             }
                         )
                         DropdownMenuItem(
                             text = { Text("Info") },
                             onClick = {
                                 navHostController.navigate("appInfo")
-                                isMenuOpen = false // Cierra el menú después de navegar
+                                isMenuOpen = false
                             },
                             leadingIcon = {
-                                Icon(Icons.Default.Info, contentDescription = "App Info") // Opcional: añade un ícono
+                                Icon(Icons.Default.Info, contentDescription = "App Info")
                             }
                         )
                     }
@@ -113,88 +117,108 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
             )
         }
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            // Título
-            Text(
-                text = "MOde Menu",
-                style = TextStyle(
-                    fontFamily = FontTittle,
-                    fontWeight = FontWeight.Bold,
-                    fontSize = 45.sp,
-                    color = Color.Black
-                ),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
-            // Botón para navegar al "Matchup Chart"
-            Button(
-                onClick = {
-                    navHostController.navigate("matchupChart/$characterId")
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(60.dp)
-            ) {
-                Text("Matchup Chart")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    navHostController.navigate("characterDetail/$characterId")
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(60.dp)
-            ) {
-                Text("Character Info")
-            }
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isLandscape = maxWidth > maxHeight
 
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    navHostController.navigate("chatBot")
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(60.dp)
-            ) {
-                Text("ChatBot")
-            }
-
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Botón para función futura
-            Button(
-                onClick = {
-                    // Acción para la función "Coming soon"
-                },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
-                modifier = Modifier
-                    .width(200.dp)
-                    .height(60.dp)
-            ) {
-                Text("Coming soon...")
+            if (isLandscape) {
+                ScrollableMenuContent(characterId, navHostController, padding, isLandscape = true)
+            } else {
+                ScrollableMenuContent(characterId, navHostController, padding, isLandscape = false)
             }
         }
     }
 }
+
+
+@Composable
+fun ScrollableMenuContent(characterId: String?, navHostController: NavHostController, padding: PaddingValues, isLandscape: Boolean) {
+    val scrollState = rememberScrollState()
+
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(padding)
+            .verticalScroll(scrollState),
+        horizontalAlignment = Alignment.CenterHorizontally, // Centrado en ambas orientaciones
+        verticalArrangement = if (isLandscape) Arrangement.Center else Arrangement.Top // Diferente disposición según orientación
+    ) {
+        // Título
+        Text(
+            text = "MOde Menu",
+            style = TextStyle(
+                fontFamily = FontTittle,
+                fontWeight = FontWeight.Bold,
+                fontSize = 45.sp,
+                color = Color.Black
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            textAlign = TextAlign.Center
+        )
+
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+
+        MenuButtons(characterId, navHostController)
+    }
+}
+
+
+@Composable
+fun MenuButtons(characterId: String?, navHostController: NavHostController) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, // Botones centrados
+        verticalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Button(
+            onClick = { navHostController.navigate("matchupChart/$characterId") },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .width(200.dp)
+                .height(60.dp)
+        ) {
+            Text("Matchup Chart")
+        }
+
+
+        Button(
+            onClick = { navHostController.navigate("characterDetail/$characterId") },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .width(200.dp)
+                .height(60.dp)
+        ) {
+            Text("Character Info")
+        }
+
+
+        Button(
+            onClick = { navHostController.navigate("chatBot") },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .width(200.dp)
+                .height(60.dp)
+        ) {
+            Text("ChatBot")
+        }
+
+
+        Button(
+            onClick = { /* Acción futura */ },
+            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
+            modifier = Modifier
+                .width(200.dp)
+                .height(60.dp)
+        ) {
+            Text("Coming soon...")
+        }
+    }
+}
+
+
+
+

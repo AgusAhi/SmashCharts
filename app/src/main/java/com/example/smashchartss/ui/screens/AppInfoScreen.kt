@@ -23,11 +23,15 @@ import androidx.navigation.NavHostController
 import com.example.smashchartss.R
 
 // Pantalla de Información de la App
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.rememberScrollState
+
 @Composable
 fun AppInfoScreen(navHostController: NavHostController) {
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .verticalScroll(rememberScrollState()) // Hacer que el contenido sea desplazable
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top

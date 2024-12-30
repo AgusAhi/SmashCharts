@@ -2,6 +2,7 @@
 
 package com.example.smashchartss.ui.screens
 
+import android.content.res.Configuration
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
@@ -41,6 +42,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.text.TextStyle
@@ -69,8 +71,10 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
     var selectedCharacter by remember { mutableStateOf<Character?>(null) } // Personaje seleccionado
     val currentCharacter = allCharacters.value.find { it.id == characterId }
 
+
     // Cargar personajes
     CharacterFetchRemovable(allCharacters, availableCharacters, characterId)
+
 
     Scaffold(
         topBar = {
@@ -116,6 +120,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                 label = "FAB Rotation"
             )
 
+
             val scale by animateFloatAsState(
                 targetValue = if (isEditMode.value) 1f else 1.5f,
                 animationSpec = spring(
@@ -124,6 +129,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                 ),
                 label = "FAB Scale"
             )
+
 
             FloatingActionButton(
                 onClick = { isEditMode.value = !isEditMode.value },
@@ -151,6 +157,8 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                 }
             }
         }
+
+
     ) { padding ->
         Box(modifier = Modifier.fillMaxSize()) {
             Column(
@@ -163,11 +171,13 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
+
                 // Mostrar carta del personaje seleccionado
                 currentCharacter?.let {
                     CharacterCard(character = it, onClick = {})
                     Spacer(modifier = Modifier.height(16.dp))
                 }
+
 
                 Text(
                     text = "Matchup Chart",
@@ -183,7 +193,9 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                     textAlign = TextAlign.Center
                 )
 
+
                 Spacer(modifier = Modifier.height(16.dp))
+
 
                 // Mostrar cajas dinámicamente
                 boxes.forEach { box ->
@@ -196,6 +208,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                 }
+
 
                 // Botones para añadir y quitar cajas en la misma fila
                 Row(
@@ -212,6 +225,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                     ) {
                         Text("+", color = Color.White, fontSize = 24.sp)
                     }
+
 
                     // Botón para eliminar la última caja
                     FloatingActionButton(
@@ -230,7 +244,9 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                     }
                 }
 
+
                 Spacer(modifier = Modifier.height(16.dp))
+
 
                 Text(
                     text = "Available Characters",
@@ -246,6 +262,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                     textAlign = TextAlign.Center
                 )
 
+
                 CharactersBoxClickable(
                     filteredList = availableCharacters,
                     onCharacterClick = { character ->
@@ -257,6 +274,7 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
                 )
             }
         }
+
 
         // Mostrar el diálogo si está activado
         if (showDialog.value) {
@@ -274,10 +292,12 @@ fun MatchupChart(characterId: String?, navHostController: NavHostController) {
 }
 
 
+
+
 // Clase para representar una caja con título y lista de personajes asignados
 data class BoxState(var title: String, val characters: SnapshotStateList<Character>)
 
-// Función para mostrar el contenido de una caja
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun BoxContent(
@@ -288,6 +308,7 @@ fun BoxContent(
     // Estado local para manejar el título editable de la caja
     var editableTitle by remember { mutableStateOf(boxState.title) }
     val focusManager = LocalFocusManager.current // Gestionar el foco
+
 
     Column(
         modifier = Modifier
@@ -337,6 +358,7 @@ fun BoxContent(
             )
         )
 
+
         // Contenedor de los personajes
         FlowRow(
             modifier = Modifier
@@ -360,6 +382,7 @@ fun BoxContent(
                     })
                 }
 
+
                 if ((index + 1) % 5 == 0) {
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -369,7 +392,10 @@ fun BoxContent(
 }
 
 
-// Función para mostrar el diálogo de selección de caja
+
+
+
+
 @Composable
 fun showBoxSelectionDialog(
     boxes: List<BoxState>,
@@ -417,22 +443,26 @@ fun showBoxSelectionDialog(
     )
 }
 
-// Función para mostrar la cuadrícula de personajes
+
 @Composable
 fun CharactersBoxClickable(
     filteredList: List<Character>,
     onCharacterClick: (Character) -> Unit,
-    columns: Int = 6, // Define cuántas columnas tendrá la "cuadrícula"
-    isEditMode: Boolean = false, // Nuevo parámetro para el modo de edición
-    navHostController: NavHostController? = null // Controlador de navegación opcional
+    columns: Int = if (LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE) 8 else 6, // Más columnas en landscape
+    isEditMode: Boolean = false,
+    navHostController: NavHostController? = null
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(8.dp)
     ) {
-        // Agrupa los personajes en filas
         val rows = filteredList.chunked(columns)
+
 
         Column(
             verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -440,16 +470,16 @@ fun CharactersBoxClickable(
             rows.forEach { row ->
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    modifier = Modifier.fillMaxWidth() // Asegura que cada fila ocupe todo el ancho
+                    modifier = Modifier.fillMaxWidth()
                 ) {
-                    // Rellena los espacios vacíos si la fila no está completa
                     val adjustedRow = row + List(columns - row.size) { null }
+
 
                     adjustedRow.forEach { character ->
                         Box(
                             modifier = Modifier
-                                .weight(1f) // Divide el espacio disponible uniformemente
-                                .aspectRatio(1f) // Mantiene una relación de aspecto cuadrada
+                                .weight(1f)
+                                .aspectRatio(if (isLandscape) 0.8f else 1f) // Rectangular en landscape
                         ) {
                             if (character != null) {
                                 CharacterCardClickable(
@@ -468,7 +498,15 @@ fun CharactersBoxClickable(
     }
 }
 
-// Función para obtener la lista de personajes
+
+
+
+
+
+
+
+
+
 @Composable
 fun CharacterFetchRemovable(
     allCharacters: MutableState<List<Character>>,
@@ -482,10 +520,11 @@ fun CharacterFetchRemovable(
             characters.filter { it.id != excludedCharacterId } // Filtra el personaje excluido
         )
 
+
     }
 }
 
-// Función para mostrar una tarjeta de personaje
+
 @Composable
 fun CharacterCardClickable(
     character: Character,
@@ -493,9 +532,13 @@ fun CharacterCardClickable(
     navHostController: NavHostController?,
     onClick: (() -> Unit)? = null
 ) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+
+
     Box(
         modifier = Modifier
-            .size(70.dp)
+            .size(if (isLandscape) 90.dp else 70.dp) // Íconos más grandes en landscape
             .clip(RoundedCornerShape(64.dp))
             .background(MaterialTheme.colorScheme.tertiary)
             .clickable {
@@ -511,13 +554,14 @@ fun CharacterCardClickable(
             model = ImageRequest.Builder(LocalContext.current)
                 .data(character.icon_url)
                 .crossfade(true)
-                .diskCachePolicy(CachePolicy.ENABLED) // Habilita caché en disco
-                .memoryCachePolicy(CachePolicy.ENABLED) // Habilita caché en memoria
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
                 .build(),
             contentDescription = "Character Icon",
-            modifier = Modifier.size(64.dp),
+            modifier = Modifier.size(if (isLandscape) 80.dp else 64.dp),
             contentScale = ContentScale.Crop
         )
+
 
         if (isEditMode) {
             Box(
@@ -537,6 +581,17 @@ fun CharacterCardClickable(
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
 
 
 
