@@ -1,5 +1,6 @@
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -92,6 +93,13 @@ fun CharacterDetailsScreen(characterId: String, navHostController: NavHostContro
                             scale = (scale * zoom).coerceIn(0.5f, 2f)
                         }
                     }
+                    .pointerInput(Unit) {
+                        detectHorizontalDragGestures { _, dragAmount ->
+                            if (dragAmount > 50) {
+                                navHostController.navigateUp()
+                            }
+                        }
+                    },
             ) {
                 if (currentCharacter == null) {
                     Text(

@@ -26,15 +26,19 @@ import androidx.navigation.NavHostController
 import com.example.smashchartss.ui.theme.FontTittle
 
 
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+
+import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.ui.input.pointer.pointerInput
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MenuScreen(characterId: String?, navHostController: NavHostController) {
     var isMenuOpen by remember { mutableStateOf(false) }
     var settingsIconRotation by remember { mutableStateOf(0f) }
 
-
     val animatedRotation by animateFloatAsState(targetValue = settingsIconRotation)
-
 
     Scaffold(
         topBar = {
@@ -76,7 +80,6 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
                         )
                     }
 
-
                     DropdownMenu(
                         expanded = isMenuOpen,
                         onDismissRequest = { isMenuOpen = false },
@@ -117,9 +120,18 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
             )
         }
     ) { padding ->
-        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+        BoxWithConstraints(
+            modifier = Modifier
+                .fillMaxSize()
+                .pointerInput(Unit) {
+                    detectHorizontalDragGestures { change, dragAmount ->
+                        if (dragAmount > 50) { // Deslizar hacia la derecha
+                            navHostController.navigateUp()
+                        }
+                    }
+                }
+        ) {
             val isLandscape = maxWidth > maxHeight
-
 
             if (isLandscape) {
                 ScrollableMenuContent(characterId, navHostController, padding, isLandscape = true)
@@ -129,6 +141,8 @@ fun MenuScreen(characterId: String?, navHostController: NavHostController) {
         }
     }
 }
+
+
 
 
 @Composable
